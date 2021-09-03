@@ -1,0 +1,36 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: srt-app-staticweb
+spec:
+  type: NodePort
+  selector:
+    app: srt-app-staticweb
+  ports:
+    - name: srt-tm-http
+      protocol: TCP
+      port: 5000
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srt-app-staticweb
+  labels:
+    app: srt-app-staticweb
+spec:
+  selector:
+    matchLabels:
+      app: srt-app-staticweb
+  template:
+    metadata:
+      labels:
+        app: srt-app-staticweb
+    spec:
+      containers:
+      - name: srt-app-staticweb
+        image: srt-app-staticweb
+        ports:
+        - containerPort: 80
+          name: srt-app-http

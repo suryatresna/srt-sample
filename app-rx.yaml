@@ -1,0 +1,45 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: srt-app-rx
+spec:
+  type: LoadBalancer
+  selector:
+    app: srt-app-rx
+  ports:
+    - name: srt-rx-in
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    - name: srt-rx-out
+      protocol: TCP
+      port: 7010
+      targetPort: 7010
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srt-app-rx
+  labels:
+    app: srt-app-rx
+spec:
+  selector:
+    matchLabels:
+      app: srt-app-rx
+  template:
+    metadata:
+      labels:
+        app: srt-app-rx
+    spec:
+      containers:
+      - name: srt-app-rx
+        image: suryatresna/srt-app
+        args: ["-v", "-r:10", "-s:5", "srt://0.0.0.0:9000?mode=server", "udp://163.47.9.116:7010?mode=client"]
+          # - "-v -r:10 -s:5 'srt://0.0.0.0:9000?mode=server' 'udp://144.126.242.186:7010?mode=client'"
+          # - -v -r:10 -s:5 "srt://0.0.0.0:9000?mode=server" "udp://localhost:7010?mode=client"
+        ports:
+        - containerPort: 9000
+          name: srt-rx-in
+        - containerPort: 7010
+          name: srt-rx-out

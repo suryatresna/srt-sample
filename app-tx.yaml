@@ -1,0 +1,39 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: srt-app-tx
+spec:
+  type: LoadBalancer
+  selector:
+    app: srt-app-tx
+  ports:
+    - name: srt-tx
+      protocol: UDP
+      port: 7000
+      targetPort: 7000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srt-app-tx
+  labels:
+    app: srt-app-tx
+spec:
+  selector:
+    matchLabels:
+      app: srt-app-tx
+  template:
+    metadata:
+      labels:
+        app: srt-app-tx
+    spec:
+      containers:
+      - name: srt-app-tx
+        image: suryatresna/srt-app
+        args: ["-v", "-r:10", "-s:5", "udp://:7000", "udp://srt-app-rx:9000?mode=client"]
+          # - "-v -r:10 -s:5 'srt://0.0.0.0:9000?mode=server' 'udp://144.126.242.186:7010?mode=client'"
+          # - -v -r:10 -s:5 "srt://0.0.0.0:9000?mode=server" "udp://localhost:7011?mode=client"
+        ports:
+        - containerPort: 7000
+          name: srt-tx

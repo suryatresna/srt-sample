@@ -1,0 +1,14 @@
+FROM alpine:latest
+
+RUN apk update && apk add --no-cache --upgrade ca-certificates tcl git tar cmake build-base bash \
+    openssl-dev alpine-sdk linux-headers musl-dev util-linux-dev
+
+# download SRT package
+RUN wget -O srt-v1.4.3.tar.gz https://codeload.github.com/suryatresna/srt/tar.gz/refs/tags/v1.4.3
+# installation SRT binary
+RUN tar -xvzf srt-v1.4.3.tar.gz && \
+    cd srt-1.4.3 && chmod +x configure && ./configure && \
+    make && make install
+
+# Start
+ENTRYPOINT ["srt-live-transmit"]

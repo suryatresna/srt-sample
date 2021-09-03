@@ -1,0 +1,45 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: srt-app-transmit
+spec:
+  type: NodePort
+  selector:
+    app: srt-app-transmit
+  ports:
+    - name: srt-tm-udp
+      protocol: UDP
+      port: 9000
+      targetPort: 9000
+    - name: srt-tm-srt
+      protocol: UDP
+      port: 9001
+      targetPort: 9001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: srt-app-transmit
+  labels:
+    app: srt-app-transmit
+spec:
+  selector:
+    matchLabels:
+      app: srt-app-transmit
+  template:
+    metadata:
+      labels:
+        app: srt-app-transmit
+    spec:
+      containers:
+      - name: srt-app-transmit
+        image: suryatresna/srt-app
+        args: ["-v", "srt://:9000?transtype=live&blocking=0", "srt://:9001?transtype=live&blocking=0"]
+          # - "-v -r:10 -s:5 'srt://0.0.0.0:9000?mode=server' 'udp://144.126.242.186:7010?mode=client'"
+          # - -v -r:10 -s:5 "srt://0.0.0.0:9000?mode=server" "udp://localhost:7011?mode=client"
+        ports:
+        - containerPort: 9000
+          name: srt-tm-udp
+        - containerPort: 9001
+          name: srt-tm-srt
